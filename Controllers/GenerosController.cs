@@ -40,7 +40,7 @@ namespace PeliculasAPI.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<GeneroDTO>> Post([FromBody] GeneroCreacionDTO generoCreacionDTO)
+        public async Task<ActionResult> Post([FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
             var entidad = mapper.Map<Genero>(generoCreacionDTO);
             context.Add(entidad);
@@ -50,7 +50,7 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<GeneroDTO>> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
+        public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
             var entidad = mapper.Map<Genero>(generoCreacionDTO);
             entidad.Id = id;
