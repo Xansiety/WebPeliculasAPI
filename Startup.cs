@@ -1,4 +1,6 @@
-﻿namespace PeliculasAPI
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace PeliculasAPI
 {
     public class Startup
     {
@@ -10,6 +12,16 @@
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //AutoMapper
+            services.AddAutoMapper(typeof(Startup));
+
+
+            //SQL Context
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
+
             // Add services to the container.
             services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
