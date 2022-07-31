@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PeliculasAPI.Servicios;
+using PeliculasAPI.Servicios.AzureStorage;
 
 namespace PeliculasAPI
 {
@@ -16,6 +18,9 @@ namespace PeliculasAPI
             services.AddAutoMapper(typeof(Startup));
 
 
+            services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosAzure>();
+            
+            
             //SQL Context
             services.AddDbContext<ApplicationDbContext>(options =>
             {
