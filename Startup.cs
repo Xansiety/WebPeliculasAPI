@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.Servicios;
 using PeliculasAPI.Servicios.AzureStorage;
+using PeliculasAPI.Servicios.LocalStorage;
 
 namespace PeliculasAPI
 {
@@ -17,9 +18,12 @@ namespace PeliculasAPI
             //AutoMapper
             services.AddAutoMapper(typeof(Startup));
 
+            //AZURE
+            //services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosAzure>();
 
-            services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosAzure>();
-            
+            //LOCAL
+            services.AddHttpContextAccessor();
+            services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosLocal>(); 
             
             //SQL Context
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -45,6 +49,9 @@ namespace PeliculasAPI
             }
 
             app.UseHttpsRedirection();
+
+            //para poder mistar las imágenes desde LocalHost
+            app.UseStaticFiles();
 
             app.UseRouting();
 
