@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.DTOs.Actor;
+using PeliculasAPI.DTOs.Paginacion;
+using PeliculasAPI.Helpers.PaginarResultados;
 using PeliculasAPI.Models;
 using PeliculasAPI.Servicios;
 
@@ -26,10 +28,17 @@ namespace PeliculasAPI.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<List<ActorDTO>>> Get()
+        public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
-            var modelo = await context.Actores.ToListAsync();
-            return mapper.Map<List<ActorDTO>>(modelo); 
+
+            var queryable = context.Actores.AsQueryable();
+            await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable, paginacionDTO.CantidadRegistrosPorPagina);
+
+            var actores = await queryable.Paginar(paginacionDTO).ToListAsync();
+            return mapper.Map<List<ActorDTO>>(actores);
+
+            //var modelo = await context.Actores.ToListAsync();
+            //return mapper.Map<List<ActorDTO>>(modelo); 
         }
 
 
@@ -38,7 +47,7 @@ namespace PeliculasAPI.Controllers
         {
             var modelo = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
             if (modelo is null) return NotFound();
-            return mapper.Map<ActorDTO>(modelo); 
+            return mapper.Map<ActorDTO>(modelo);
         }
 
 
@@ -81,20 +90,20 @@ namespace PeliculasAPI.Controllers
                     actorDB.Foto = await almacenArchivos.EditarArchivo(contenido: contenido, extension: extension, contenedor: contenedor, contentType: actorCreacionDTO.Foto.ContentType, ruta: actorDB.Foto);
                 }
             }
-             
+
             await context.SaveChangesAsync();
             return NoContent();
         }
 
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument ) 
+        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
         {
             if (patchDocument is null) return BadRequest();
 
             var entidadDb = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
             if (entidadDb is null) return NotFound();
-            
+
             var entidadDTO = mapper.Map<ActorPatchDTO>(entidadDb);
 
             //para error en Model estate se instala Microsoft.AspNetCore.Mvc.NewtonsoftJson
