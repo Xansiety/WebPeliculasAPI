@@ -19,10 +19,10 @@ namespace PeliculasAPI
             services.AddAutoMapper(typeof(Startup));
 
             //AZURE
-            //services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosAzure>();
+            services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosAzure>();
 
             //LOCAL
-            services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosLocal>(); 
+            //services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosLocal>(); 
             services.AddHttpContextAccessor();
             
             //SQL Context
