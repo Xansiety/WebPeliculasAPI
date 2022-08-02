@@ -43,21 +43,22 @@ namespace PeliculasAPI.Controllers
         public async Task<ActionResult> Post([FromForm] PeliculaCreacionDTO peliculaCreacionDTO)
         {
             var pelicula = mapper.Map<Pelicula>(peliculaCreacionDTO);
+            return Ok();
 
-            if (peliculaCreacionDTO.Poster is not null)
-            {
-                using (var memoryString = new MemoryStream())
-                {
-                    await peliculaCreacionDTO.Poster.CopyToAsync(memoryString);
-                    var contenido = memoryString.ToArray();
-                    var extension = Path.GetExtension(peliculaCreacionDTO.Poster.FileName);
-                    pelicula.Poster = await almacenArchivos.GuadarArchivo(contenido: contenido, extension: extension, contenedor: contenedor, contentType: peliculaCreacionDTO.Poster.ContentType);
-                }
-            } 
-            context.Add(pelicula);
-            await context.SaveChangesAsync();
-            var peliculaDTO = mapper.Map<PeliculaDTO>(pelicula);
-            return new CreatedAtRouteResult("ObtenerPelicula", new { id = pelicula.Id }, peliculaDTO);
+            //if (peliculaCreacionDTO.Poster is not null)
+            //{
+            //    using (var memoryString = new MemoryStream())
+            //    {
+            //        await peliculaCreacionDTO.Poster.CopyToAsync(memoryString);
+            //        var contenido = memoryString.ToArray();
+            //        var extension = Path.GetExtension(peliculaCreacionDTO.Poster.FileName);
+            //        pelicula.Poster = await almacenArchivos.GuadarArchivo(contenido: contenido, extension: extension, contenedor: contenedor, contentType: peliculaCreacionDTO.Poster.ContentType);
+            //    }
+            //} 
+            //context.Add(pelicula);
+            //await context.SaveChangesAsync();
+            //var peliculaDTO = mapper.Map<PeliculaDTO>(pelicula);
+            //return new CreatedAtRouteResult("ObtenerPelicula", new { id = pelicula.Id }, peliculaDTO);
         }
 
 
