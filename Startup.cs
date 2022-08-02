@@ -22,8 +22,8 @@ namespace PeliculasAPI
             //services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosAzure>();
 
             //LOCAL
-            services.AddHttpContextAccessor();
             services.AddTransient<IAlmacenArchivos, AlmacenadorArchivosLocal>(); 
+            services.AddHttpContextAccessor();
             
             //SQL Context
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -32,10 +32,13 @@ namespace PeliculasAPI
             });
 
             // Add services to the container.
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson();
+            
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+             
         }
 
 

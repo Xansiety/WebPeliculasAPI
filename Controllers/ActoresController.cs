@@ -1,4 +1,5 @@
-﻿using AutoMapper; 
+﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.DTOs.Actor;
@@ -83,6 +84,29 @@ namespace PeliculasAPI.Controllers
              
             await context.SaveChangesAsync();
             return NoContent();
+        }
+
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument ) 
+        {
+            if (patchDocument is null) return BadRequest();
+
+            var entidadDb = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
+            if (entidadDb is null) return NotFound();
+            
+            var entidadDTO = mapper.Map<ActorPatchDTO>(entidadDb);
+
+            //para error en Model estate se instala Microsoft.AspNetCore.Mvc.NewtonsoftJson
+            //para configurara: se modifica startup en  .AddNewtonsoftJson();
+            patchDocument.ApplyTo(entidadDTO, ModelState);
+
+            if (!TryValidateModel(entidadDTO)) return BadRequest(ModelState);
+
+            mapper.Map(entidadDTO, entidadDb);
+            await context.SaveChangesAsync();
+            return NoContent();
+
         }
 
         [HttpDelete("{id}")]
