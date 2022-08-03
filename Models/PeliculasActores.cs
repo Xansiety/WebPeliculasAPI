@@ -8,7 +8,7 @@
         public int Orden { get; set; }
          
         //Propiedades de navegación
-        public Actor actor { get; set; }
-        public Pelicula pelicula { get; set; }
+        public Actor Actor { get; set; }
+        public Pelicula Pelicula { get; set; }
     }
 }

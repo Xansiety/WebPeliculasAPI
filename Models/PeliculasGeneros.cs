@@ -3,7 +3,7 @@
     public class PeliculasGeneros
     {
         public int GeneroId { get; set; }
-        public int PeiculaId { get; set; }
+        public int PeliculaId { get; set; }
 
         //propiedades de navegación
         public Genero Genero { get; set; }

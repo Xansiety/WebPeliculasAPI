@@ -43,29 +43,46 @@ namespace PeliculasAPI.Controllers
         public async Task<ActionResult> Post([FromForm] PeliculaCreacionDTO peliculaCreacionDTO)
         {
             var pelicula = mapper.Map<Pelicula>(peliculaCreacionDTO);
-            return Ok();
 
-            //if (peliculaCreacionDTO.Poster is not null)
-            //{
-            //    using (var memoryString = new MemoryStream())
-            //    {
-            //        await peliculaCreacionDTO.Poster.CopyToAsync(memoryString);
-            //        var contenido = memoryString.ToArray();
-            //        var extension = Path.GetExtension(peliculaCreacionDTO.Poster.FileName);
-            //        pelicula.Poster = await almacenArchivos.GuadarArchivo(contenido: contenido, extension: extension, contenedor: contenedor, contentType: peliculaCreacionDTO.Poster.ContentType);
-            //    }
-            //} 
-            //context.Add(pelicula);
-            //await context.SaveChangesAsync();
-            //var peliculaDTO = mapper.Map<PeliculaDTO>(pelicula);
-            //return new CreatedAtRouteResult("ObtenerPelicula", new { id = pelicula.Id }, peliculaDTO);
+            if (peliculaCreacionDTO.Poster is not null)
+            {
+                using (var memoryString = new MemoryStream())
+                {
+                    await peliculaCreacionDTO.Poster.CopyToAsync(memoryString);
+                    var contenido = memoryString.ToArray();
+                    var extension = Path.GetExtension(peliculaCreacionDTO.Poster.FileName);
+                    pelicula.Poster = await almacenArchivos.GuadarArchivo(contenido: contenido, extension: extension, contenedor: contenedor, contentType: peliculaCreacionDTO.Poster.ContentType);
+                }
+            }
+
+            AsignarOdenActores(pelicula);
+            context.Add(pelicula);
+            await context.SaveChangesAsync();
+            var peliculaDTO = mapper.Map<PeliculaDTO>(pelicula);
+            return new CreatedAtRouteResult("ObtenerPelicula", new { id = pelicula.Id }, peliculaDTO);
         }
+
+
+        private void AsignarOdenActores(Pelicula pelicula)
+        {
+            if (pelicula.PeliculasActores is not null)
+            {
+                for (int i = 0; i < pelicula.PeliculasActores.Count; i++)
+                {
+                    pelicula.PeliculasActores[i].Orden = i;
+                }
+            }
+        }
+        
 
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromForm] PeliculaCreacionDTO peliculaCreacionDTO)
         {
-            var peliculaDB = await context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
+            var peliculaDB = await context.Peliculas
+                .Include(x => x.PeliculasActores)
+                .Include(x => x.PeliculasGeneros)
+                .FirstOrDefaultAsync(x => x.Id == id);
             
             if (peliculaDB is null) return NotFound();
 
@@ -80,7 +97,8 @@ namespace PeliculasAPI.Controllers
                     var extension = Path.GetExtension(peliculaCreacionDTO.Poster.FileName);
                     peliculaDB.Poster = await almacenArchivos.EditarArchivo(contenido: contenido, extension: extension, contenedor: contenedor, contentType: peliculaCreacionDTO.Poster.ContentType, ruta: peliculaDB.Poster);
                 }
-            } 
+            }
+            AsignarOdenActores(peliculaDB);
             await context.SaveChangesAsync();
             return NoContent();
         }

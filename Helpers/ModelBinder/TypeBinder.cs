@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace PeliculasAPI.Helpers.ModelBinder
 {
-    public class TypeBinder : IModelBinder
+    public class TypeBinder<T> : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
@@ -13,7 +13,7 @@ namespace PeliculasAPI.Helpers.ModelBinder
 
             try
             {
-                var valorDeserializado = JsonConvert.DeserializeObject<List<int>>(proveedorValores.FirstValue);
+                var valorDeserializado = JsonConvert.DeserializeObject<T>(proveedorValores.FirstValue);
                 bindingContext.Result = ModelBindingResult.Success(valorDeserializado);
             }
             catch (Exception)
