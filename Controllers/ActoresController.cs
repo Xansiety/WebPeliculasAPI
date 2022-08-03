@@ -12,14 +12,14 @@ namespace PeliculasAPI.Controllers
 {
     [Route("api/actores")]
     [ApiController]
-    public class ActoresController : ControllerBase
+    public class ActoresController : CustomBaseController
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly IAlmacenArchivos almacenArchivos;
         private readonly string contenedor = "actores";
 
-        public ActoresController(ApplicationDbContext context, IMapper mapper, IAlmacenArchivos almacenArchivos)
+        public ActoresController(ApplicationDbContext context, IMapper mapper, IAlmacenArchivos almacenArchivos) : base(context, mapper) 
         {
             this.context = context;
             this.mapper = mapper;
@@ -30,12 +30,12 @@ namespace PeliculasAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
+            return await Get<Actor, ActorDTO>(paginacionDTO);
+            //var queryable = context.Actores.AsQueryable();
+            //await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable, paginacionDTO.CantidadRegistrosPorPagina);
 
-            var queryable = context.Actores.AsQueryable();
-            await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable, paginacionDTO.CantidadRegistrosPorPagina);
-
-            var actores = await queryable.Paginar(paginacionDTO).ToListAsync();
-            return mapper.Map<List<ActorDTO>>(actores);
+            //var actores = await queryable.Paginar(paginacionDTO).ToListAsync();
+            //return mapper.Map<List<ActorDTO>>(actores);
 
             //var modelo = await context.Actores.ToListAsync();
             //return mapper.Map<List<ActorDTO>>(modelo); 
@@ -45,9 +45,10 @@ namespace PeliculasAPI.Controllers
         [HttpGet("{id:int}", Name = "ObtenerActor")]
         public async Task<ActionResult<ActorDTO>> Get(int id)
         {
-            var modelo = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
-            if (modelo is null) return NotFound();
-            return mapper.Map<ActorDTO>(modelo);
+            return await Get<Actor, ActorDTO>(id);
+            //var modelo = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
+            //if (modelo is null) return NotFound();
+            //return mapper.Map<ActorDTO>(modelo);
         }
 
 
@@ -99,33 +100,36 @@ namespace PeliculasAPI.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
         {
-            if (patchDocument is null) return BadRequest();
 
-            var entidadDb = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
-            if (entidadDb is null) return NotFound();
+            return await Patch<Actor, ActorPatchDTO>(id, patchDocument);
+            //if (patchDocument is null) return BadRequest();
 
-            var entidadDTO = mapper.Map<ActorPatchDTO>(entidadDb);
+            //var entidadDb = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
+            //if (entidadDb is null) return NotFound();
 
-            //para error en Model estate se instala Microsoft.AspNetCore.Mvc.NewtonsoftJson
-            //para configurara: se modifica startup en  .AddNewtonsoftJson();
-            patchDocument.ApplyTo(entidadDTO, ModelState);
+            //var entidadDTO = mapper.Map<ActorPatchDTO>(entidadDb);
 
-            if (!TryValidateModel(entidadDTO)) return BadRequest(ModelState);
+            ////para error en Model estate se instala Microsoft.AspNetCore.Mvc.NewtonsoftJson
+            ////para configurara: se modifica startup en  .AddNewtonsoftJson();
+            //patchDocument.ApplyTo(entidadDTO, ModelState);
 
-            mapper.Map(entidadDTO, entidadDb);
-            await context.SaveChangesAsync();
-            return NoContent();
+            //if (!TryValidateModel(entidadDTO)) return BadRequest(ModelState);
+
+            //mapper.Map(entidadDTO, entidadDb);
+            //await context.SaveChangesAsync();
+            //return NoContent();
 
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var modelo = await context.Actores.AnyAsync(x => x.Id == id);
-            if (!modelo) return NotFound();
-            context.Remove(new Actor { Id = id });
-            await context.SaveChangesAsync();
-            return NoContent();
+            return await Delete<Actor>(id);
+            //var modelo = await context.Actores.AnyAsync(x => x.Id == id);
+            //if (!modelo) return NotFound();
+            //context.Remove(new Actor { Id = id });
+            //await context.SaveChangesAsync();
+            //return NoContent();
         }
 
 

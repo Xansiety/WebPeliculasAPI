@@ -12,7 +12,7 @@ namespace PeliculasAPI.Controllers
 {
     [ApiController]
     [Route("api/peliculas")]
-    public class PeliculasController : ControllerBase
+    public class PeliculasController : CustomBaseController
     {
         private readonly ApplicationDbContext context;
         private readonly ILogger<PeliculasController> logger;
@@ -20,7 +20,7 @@ namespace PeliculasAPI.Controllers
         private readonly IAlmacenArchivos almacenArchivos;
         private readonly string contenedor = "peliculas";
 
-        public PeliculasController(ApplicationDbContext context, ILogger<PeliculasController> logger, IMapper mapper, IAlmacenArchivos almacenArchivos)
+        public PeliculasController(ApplicationDbContext context, ILogger<PeliculasController> logger, IMapper mapper, IAlmacenArchivos almacenArchivos): base(context, mapper)
         {
             this.context = context;
             this.logger = logger;
@@ -201,22 +201,23 @@ namespace PeliculasAPI.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<PeliculaPatchDTO> patchDocument)
         {
-            if (patchDocument is null) return BadRequest();
+            return await Patch<Pelicula, PeliculaPatchDTO>(id, patchDocument);
+            //if (patchDocument is null) return BadRequest();
 
-            var entidadDb = await context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
-            if (entidadDb is null) return NotFound();
+            //var entidadDb = await context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
+            //if (entidadDb is null) return NotFound();
 
-            var entidadDTO = mapper.Map<PeliculaPatchDTO>(entidadDb);
+            //var entidadDTO = mapper.Map<PeliculaPatchDTO>(entidadDb);
 
-            //para error en Model estate se instala Microsoft.AspNetCore.Mvc.NewtonsoftJson
-            //para configurara: se modifica startup en  .AddNewtonsoftJson();
-            patchDocument.ApplyTo(entidadDTO, ModelState);
+            ////para error en Model estate se instala Microsoft.AspNetCore.Mvc.NewtonsoftJson
+            ////para configurara: se modifica startup en  .AddNewtonsoftJson();
+            //patchDocument.ApplyTo(entidadDTO, ModelState);
 
-            if (!TryValidateModel(entidadDTO)) return BadRequest(ModelState);
+            //if (!TryValidateModel(entidadDTO)) return BadRequest(ModelState);
 
-            mapper.Map(entidadDTO, entidadDb);
-            await context.SaveChangesAsync();
-            return NoContent();
+            //mapper.Map(entidadDTO, entidadDb);
+            //await context.SaveChangesAsync();
+            //return NoContent();
 
         }
 
@@ -224,11 +225,12 @@ namespace PeliculasAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var modelo = await context.Peliculas.AnyAsync(x => x.Id == id);
-            if (!modelo) return NotFound();
-            context.Remove(new Pelicula { Id = id });
-            await context.SaveChangesAsync();
-            return NoContent();
+            return await Delete<Pelicula>(id);
+            //var modelo = await context.Peliculas.AnyAsync(x => x.Id == id);
+            //if (!modelo) return NotFound();
+            //context.Remove(new Pelicula { Id = id });
+            //await context.SaveChangesAsync();
+            //return NoContent();
         }
     }
 }
