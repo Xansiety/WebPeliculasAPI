@@ -28,11 +28,47 @@ namespace PeliculasAPI.Helpers
                 .ForMember(x => x.PeliculasGeneros, options => options.MapFrom(MapPeliculasGeneros))
                 .ForMember(x => x.PeliculasActores, options => options.MapFrom(MapPeliculasActores));
             CreateMap<PeliculaPatchDTO, Pelicula>().ReverseMap();
-
-
+            CreateMap<Pelicula, PeliculasDetallesDTO>()
+                .ForMember(x => x.Generos, options => options.MapFrom(MapPeliculasGeneros))
+                .ForMember(x => x.Actores, options => options.MapFrom(MapPeliculasActores));
+            
             //
         }
 
+        private List<ActorPeliculaDetalleDTO> MapPeliculasActores(Pelicula pelicula, PeliculasDetallesDTO peliculasDetallesDTO)
+        {
+            var resultado = new List<ActorPeliculaDetalleDTO>();
+            if (pelicula.PeliculasActores is null) return resultado;
+
+            pelicula.PeliculasActores.ForEach(x =>
+            {
+                resultado.Add(new ActorPeliculaDetalleDTO
+                {
+                    ActorId = x.ActorId,
+                    Personaje = x.Personaje,
+                    NombrePersona = x.Actor.Nombre
+                });
+            });
+
+            return resultado;
+        }
+            
+        private List<GeneroDTO> MapPeliculasGeneros(Pelicula pelicula, PeliculasDetallesDTO peliculasDetallesDTO)
+        {
+            var resultado = new List<GeneroDTO>();
+            if (pelicula.PeliculasGeneros is null) return resultado;
+
+            pelicula.PeliculasGeneros.ForEach(x =>
+            {
+                resultado.Add(new GeneroDTO
+                {
+                    Id = x.GeneroId,
+                    Nombre = x.Genero.Nombre
+                });
+            });
+
+            return resultado;
+        }
 
         private List<PeliculasGeneros> MapPeliculasGeneros(PeliculaCreacionDTO peliculaCreacionDTO, Pelicula pelicula)
         {
