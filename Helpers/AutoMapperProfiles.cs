@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PeliculasAPI.DTOs.Actor;
+using PeliculasAPI.DTOs.Cine;
 using PeliculasAPI.DTOs.Genero;
 using PeliculasAPI.DTOs.Pelicula;
 using PeliculasAPI.Models;
@@ -31,8 +32,11 @@ namespace PeliculasAPI.Helpers
             CreateMap<Pelicula, PeliculasDetallesDTO>()
                 .ForMember(x => x.Generos, options => options.MapFrom(MapPeliculasGeneros))
                 .ForMember(x => x.Actores, options => options.MapFrom(MapPeliculasActores));
-            
-            //
+
+            //profiles Cine
+            CreateMap<SalaDeCine, SalaDeCineDTO>().ReverseMap();
+            CreateMap<SalaDeCineCreacionDTO, SalaDeCine>();
+
         }
 
         private List<ActorPeliculaDetalleDTO> MapPeliculasActores(Pelicula pelicula, PeliculasDetallesDTO peliculasDetallesDTO)
