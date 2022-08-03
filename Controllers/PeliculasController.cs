@@ -6,6 +6,7 @@ using PeliculasAPI.DTOs.Pelicula;
 using PeliculasAPI.Helpers.PaginarResultados;
 using PeliculasAPI.Models;
 using PeliculasAPI.Servicios;
+using System.Linq.Dynamic.Core;
 
 namespace PeliculasAPI.Controllers
 {
@@ -14,13 +15,15 @@ namespace PeliculasAPI.Controllers
     public class PeliculasController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly ILogger<PeliculasController> logger;
         private readonly IMapper mapper;
         private readonly IAlmacenArchivos almacenArchivos;
         private readonly string contenedor = "peliculas";
 
-        public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenArchivos almacenArchivos)
+        public PeliculasController(ApplicationDbContext context, ILogger<PeliculasController> logger, IMapper mapper, IAlmacenArchivos almacenArchivos)
         {
             this.context = context;
+            this.logger = logger;
             this.mapper = mapper;
             this.almacenArchivos = almacenArchivos;
         }
@@ -76,11 +79,42 @@ namespace PeliculasAPI.Controllers
                .Contains(filtroPeliculaDTO.GeneroID));
             }
 
+
+            //forma para hacer campo por campo que se desa ordenar
+            //if (!String.IsNullOrEmpty(filtroPeliculaDTO.CampoOrdenar))
+            //{
+            //    if (filtroPeliculaDTO.CampoOrdenar == "titulo")
+            //    {
+            //        if (filtroPeliculaDTO.OrdenAscendente)
+            //        {
+            //            peliculasQueryable = peliculasQueryable.OrderBy(x => x.Titulo);
+            //        }
+            //        else {
+            //            peliculasQueryable = peliculasQueryable.OrderByDescending(x => x.Titulo);
+            //        }
+            //    }
+            //}
+            if (!String.IsNullOrEmpty(filtroPeliculaDTO.CampoOrdenar))
+            {
+                //Se instala la libreria System.Linq.Dynamic.Core desde nugget
+                var tipoOrden = filtroPeliculaDTO.OrdenAscendente ? "ascending" : "descending";
+
+                //si el usuario nos envía algo diferente a algún campo manejamos mediante excepción
+                try
+                {
+                    peliculasQueryable = peliculasQueryable.OrderBy($"{filtroPeliculaDTO.CampoOrdenar} {tipoOrden}");
+                }
+                catch (Exception)
+                {
+                    //throw;
+                    logger.LogError("El campo de ordenamiento no es válido");
+                }
+
+            }
+            
             await HttpContext.InsertarParametrosPaginacionEnCabecera(peliculasQueryable, filtroPeliculaDTO.CantidadRegistrosPorPagina);
-
             var peliculas = await peliculasQueryable.Paginar(filtroPeliculaDTO.Paginacion).ToListAsync();
-
-            return mapper.Map<List<PeliculaDTO>>(peliculas); //mapeo de la lista de peliculas a la lista de peliculasDTO
+            return mapper.Map<List<PeliculaDTO>>(peliculas); //mapeo de la lista de películas a la lista de peliculasDTO
 
         }
 
