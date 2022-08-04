@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using PeliculasAPI.Helpers;
 using PeliculasAPI.Servicios;
 using PeliculasAPI.Servicios.AzureStorage;
 using PeliculasAPI.Servicios.LocalStorage;
+using System.Text;
 
 namespace PeliculasAPI
 {
@@ -48,7 +52,25 @@ namespace PeliculasAPI
             // Add services to the container.
             services.AddControllers()
                 .AddNewtonsoftJson();
+
+            //Configuración de servicios de Identity
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
             
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddJwtBearer(opciones =>
+                   opciones.TokenValidationParameters = new TokenValidationParameters
+                   {
+                       ValidateIssuer = false, //por que no validamos el issuer
+                       ValidateAudience = false, //por que no validamos el audience
+                       ValidateLifetime = true, //validamos el tiempo de expiración del token
+                       ValidateIssuerSigningKey = true, //validamos lam firma del token
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWTKey:key"])),
+                       ClockSkew = TimeSpan.Zero
+                   });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
