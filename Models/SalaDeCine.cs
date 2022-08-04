@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NetTopologySuite.Geometries;
+using System.ComponentModel.DataAnnotations;
 
 namespace PeliculasAPI.Models
 {
@@ -8,7 +9,11 @@ namespace PeliculasAPI.Models
         [Required]
         [StringLength(120)]
         public string Nombre { get; set; } 
+        //Microsoft.EntityFrameworkCore.SqlServer.TopologySuite 
+        //propiedades para topology
+        public Point Ubicacion { get; set; }
         public List<PeliculasSalasDeCine> PeliculasSalasDeCines { get; set; }
+
 
     }
 }
