@@ -1,15 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using PeliculasAPI.Models;
+using System.Security.Claims;
 
 namespace PeliculasAPI
 {
     public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
-        {            
+        {
         }
 
 
@@ -19,17 +21,54 @@ namespace PeliculasAPI
 
             //llaves compuestas
             modelBuilder.Entity<PeliculasActores>().HasKey(x => new { x.ActorId, x.PeliculaId });
-            modelBuilder.Entity<PeliculasGeneros>().HasKey(x => new { x.GeneroId, x.PeliculaId }); 
+            modelBuilder.Entity<PeliculasGeneros>().HasKey(x => new { x.GeneroId, x.PeliculaId });
             modelBuilder.Entity<PeliculasSalasDeCine>().HasKey(x => new { x.PeliculaId, x.SalaDeCineId });
 
             SeedData(modelBuilder);
-            
+
             base.OnModelCreating(modelBuilder); //esta es muy importante
         }
 
 
         private void SeedData(ModelBuilder modelBuilder)
         {
+            //seed para crear usuario ADMIN
+            var rolAdminId = "ef2b48f5-d6a1-4b34-8d0f-aa1f0c2dc6fa";
+            var usuarioAdminId = "92c10c7f-4d14-4ae1-b64a-aa591ccfcb23";
+            var rolAdmin = new IdentityRole()
+            {
+                Id = rolAdminId,
+                Name = "Admin",
+                NormalizedName = "Admin"
+            };
+            var username = "ferando543@outlook.com";
+            var passwordHasher = new PasswordHasher<IdentityUser>();
+            var usuarioAdmin = new IdentityUser()
+            {
+                Id = usuarioAdminId,
+                UserName = username,
+                NormalizedUserName = username,
+                Email = username,
+                NormalizedEmail = username,
+                PasswordHash = passwordHasher.HashPassword(null, "Abc123456!")
+            };
+
+            ////primero se debe de hacer la mitigatorio de tablas identity
+            //modelBuilder.Entity<IdentityUser>()
+            //    .HasData(usuarioAdmin);
+
+            //modelBuilder.Entity<IdentityRole>()
+            //    .HasData(rolAdmin);
+
+            //modelBuilder.Entity<IdentityUserClaim<string>>()
+            //    .HasData(new IdentityUserClaim<string>
+            //    {
+            //        Id = 1,
+            //        ClaimType = ClaimTypes.Role,
+            //        UserId = usuarioAdminId,
+            //        ClaimValue = "Admin"
+            //    });
+
 
             var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
@@ -135,7 +174,7 @@ namespace PeliculasAPI
         }
 
 
-        
+
         public DbSet<Genero> Generos { get; set; }
         public DbSet<Actor> Actores { get; set; }
         public DbSet<Pelicula> Peliculas { get; set; }

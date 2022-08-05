@@ -8,3 +8,5 @@ DECLARE @MiUbicacion GEOGRAPHY = 'POINT(-99.5550692 19.2829251)'
   where Ubicacion.STDistance(@MiUbicacion) <= 3000
   order by Ubicacion.STDistance(@MiUbicacion) asc
 
+  
+

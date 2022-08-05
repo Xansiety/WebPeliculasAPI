@@ -1,8 +1,16 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using PeliculasAPI.DTOs.Paginacion;
+using PeliculasAPI.DTOs.Usuarios;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace PeliculasAPI.Controllers
 {
@@ -89,7 +97,7 @@ namespace PeliculasAPI.Controllers
 
             claims.AddRange(claimsDB);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWTKey:key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var expiracion = DateTime.UtcNow.AddYears(1);
