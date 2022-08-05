@@ -6,6 +6,7 @@ using PeliculasAPI.DTOs.Actor;
 using PeliculasAPI.DTOs.Cine;
 using PeliculasAPI.DTOs.Genero;
 using PeliculasAPI.DTOs.Pelicula;
+using PeliculasAPI.DTOs.Review;
 using PeliculasAPI.DTOs.Usuarios;
 using PeliculasAPI.Models;
 
@@ -17,11 +18,17 @@ namespace PeliculasAPI.Helpers
         {
             //profiles Auth
             CreateMap<IdentityUser, UsuarioDTO>();
-
-
+             
             //profiles Genero
             CreateMap<Genero, GeneroDTO>().ReverseMap();
             CreateMap<GeneroCreacionDTO, Genero>();
+
+            //profiles Reviews
+            CreateMap<Review, ReviewDTO>()
+                .ForMember(x => x.NombreUsuario, x => x.MapFrom(y => y.Usuario.UserName));
+
+            CreateMap<ReviewDTO, Review>();
+            CreateMap<ReviewCreacionDTO, Review>();
 
             //profiles Actor
             CreateMap<Actor, ActorDTO>().ReverseMap();

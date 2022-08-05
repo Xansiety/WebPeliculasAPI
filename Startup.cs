@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using PeliculasAPI.Helpers;
+using PeliculasAPI.Helpers.Filtros;
 using PeliculasAPI.Servicios;
 using PeliculasAPI.Servicios.AzureStorage;
 using PeliculasAPI.Servicios.LocalStorage;
@@ -35,6 +36,9 @@ namespace PeliculasAPI
 
             //Para indicar el sistema de coordenada para representare coordenadas en el mapa
             services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
+
+
+            services.AddScoped<PeliculasExisteAttribute>();
 
             services.AddSingleton(provider =>
                 new MapperConfiguration(config =>
