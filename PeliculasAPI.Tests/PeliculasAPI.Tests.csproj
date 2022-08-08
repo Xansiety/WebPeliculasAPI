@@ -22,8 +22,4 @@
     <ProjectReference Include="..\PeliculasAPI.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PruebasIntegracion\" />
-  </ItemGroup>
-
 </Project>

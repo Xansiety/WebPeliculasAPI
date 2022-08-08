@@ -1,0 +1,87 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using PeliculasAPI.DTOs.Genero;
+using PeliculasAPI.Models;
+using PeliculasAPI.Tests.Base;
+
+namespace PeliculasAPI.Tests.PruebasIntegracion
+{
+    [TestClass]
+    public class GenerosControllerTest : BasePruebas
+    {
+        private static readonly string url = "/api/generos";
+
+        [TestMethod]
+        public async Task ObtenerTodosLosGenerosListadoVacio()
+        {
+            var nombreDB = Guid.NewGuid().ToString();
+            var factory = ConstruirWebApplicationFactory(nombreDB);
+
+            var cliente = factory.CreateClient();
+            var respuesta = await cliente.GetAsync(url);
+
+            respuesta.EnsureSuccessStatusCode()
+;
+            var generos = JsonConvert
+                .DeserializeObject<List<GeneroDTO>>(await respuesta.Content.ReadAsStringAsync());
+
+            Assert.AreEqual(0, generos.Count); 
+        }
+
+
+        [TestMethod]
+        public async Task ObtenerTodosLosGeneros()
+        {
+            var nombreBD = Guid.NewGuid().ToString();
+            var factory = ConstruirWebApplicationFactory(nombreBD);
+
+            var contexto = ConstruirContext(nombreBD);
+            contexto.Generos.Add(new Genero() { Nombre = "Género 1" });
+            contexto.Generos.Add(new Genero() { Nombre = "Género 2" });
+            await contexto.SaveChangesAsync();
+
+            var cliente = factory.CreateClient();
+            var respuesta = await cliente.GetAsync(url);
+
+            respuesta.EnsureSuccessStatusCode();
+
+            var generos = JsonConvert
+                .DeserializeObject<List<GeneroDTO>>(await respuesta.Content.ReadAsStringAsync());
+
+            Assert.AreEqual(2, generos.Count);
+        }
+
+
+        [TestMethod]
+        public async Task BorrarGenero()
+        {
+            var nombreBD = Guid.NewGuid().ToString();
+            var factory = ConstruirWebApplicationFactory(nombreBD, ignorarSeguridad: true);
+
+            var contexto = ConstruirContext(nombreBD);
+            contexto.Generos.Add(new Genero() { Nombre = "Género 1" });
+            await contexto.SaveChangesAsync();
+
+            var cliente = factory.CreateClient();
+            var respuesta = await cliente.DeleteAsync($"{url}/1");
+            respuesta.EnsureSuccessStatusCode();
+
+            var contexto2 = ConstruirContext(nombreBD);
+            var existe = await contexto2.Generos.AnyAsync();
+            Assert.IsFalse(existe);
+        }
+
+        
+        [TestMethod]
+        public async Task BorrarGeneroRetorna401()
+        {
+            var nombreBD = Guid.NewGuid().ToString();
+            var factory = ConstruirWebApplicationFactory(nombreBD, ignorarSeguridad: false); 
+            
+            var cliente = factory.CreateClient();
+            var respuesta = await cliente.DeleteAsync($"{url}/1");
+            Assert.AreEqual("Unauthorized", respuesta.ReasonPhrase);
+        }
+
+    }
+}
