@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite;
 using PeliculasAPI.Helpers;
+using PeliculasAPI.Tests.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +21,7 @@ namespace PeliculasAPI.Tests.Base
     {
         protected string usuarioPorDefectoId = "9722b56a-77ea-4e41-941d-e319b6eb3712";
         protected string usuarioPorDefectoEmail = "ejemplo@hotmail.com";
-        
+
         protected ApplicationDbContext ConstruirContext(string nombreDB)
         {
             var opciones = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -56,6 +60,42 @@ namespace PeliculasAPI.Tests.Base
         }
 
 
-        
+
+        protected WebApplicationFactory<Startup> ConstruirWebApplicationFactory(string nombreBD,
+           bool ignorarSeguridad = true) //para saltarnos la seguridad
+        {
+            var factory = new WebApplicationFactory<Startup>();
+
+            factory = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var descriptorDBContext = services.SingleOrDefault(d =>
+                    d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+
+                    if (descriptorDBContext != null)
+                    {
+                        services.Remove(descriptorDBContext); //lo removemos para después volverlo a integrar
+                    }
+
+                    services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseInMemoryDatabase(nombreBD));
+
+                    if (ignorarSeguridad)
+                    {
+                        services.AddSingleton<IAuthorizationHandler, AllowAnonymousHandler>();//saltarnos los atributos de authorization/seguridad
+
+                        services.AddControllers(options =>
+                        {
+                            options.Filters.Add(new UsuarioFalsoFiltro());
+                        });
+                    }
+                });
+            });
+
+            return factory;
+        }
+
+
     }
 }
