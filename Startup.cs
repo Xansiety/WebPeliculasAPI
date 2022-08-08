@@ -43,25 +43,29 @@ namespace PeliculasAPI
             services.AddSingleton(provider =>
                 new MapperConfiguration(config =>
                 {
-                    var geometryFactory= provider.GetRequiredService<GeometryFactory>();
+                    var geometryFactory = provider.GetRequiredService<GeometryFactory>();
                     config.AddProfile(new AutoMapperProfiles(geometryFactory));
                 }).CreateMapper()
             );
             //SQL Context
-            services.AddDbContext<ApplicationDbContext>(options => 
+            services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
             sqlServerOptions => sqlServerOptions.UseNetTopologySuite() //para poder usar se instala Microsoft.EntityFrameworkCore.SqlServer.TopologySuite
             ));
 
             // Add services to the container.
-            services.AddControllers()
+            services.AddControllers(
+                opt =>
+                {
+                    opt.Filters.Add(typeof(FiltroErrores));
+                })
                 .AddNewtonsoftJson();
 
             //Configuración de servicios de Identity
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-            
+
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(opciones =>
@@ -78,7 +82,7 @@ namespace PeliculasAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
-             
+
         }
 
 
