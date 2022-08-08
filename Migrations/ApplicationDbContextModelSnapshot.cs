@@ -242,7 +242,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Actores");
+                    b.ToTable("Actores", (string)null);
 
                     b.HasData(
                         new
@@ -280,7 +280,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Generos");
+                    b.ToTable("Generos", (string)null);
 
                     b.HasData(
                         new
@@ -329,7 +329,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Peliculas");
+                    b.ToTable("Peliculas", (string)null);
 
                     b.HasData(
                         new
@@ -387,7 +387,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasIndex("PeliculaId");
 
-                    b.ToTable("PeliculasActores");
+                    b.ToTable("PeliculasActores", (string)null);
 
                     b.HasData(
                         new
@@ -439,7 +439,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasIndex("PeliculaId");
 
-                    b.ToTable("PeliculasGeneros");
+                    b.ToTable("PeliculasGeneros", (string)null);
 
                     b.HasData(
                         new
@@ -501,7 +501,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasIndex("SalaDeCineId");
 
-                    b.ToTable("PeliculasSalasDeCines");
+                    b.ToTable("PeliculasSalasDeCines", (string)null);
                 });
 
             modelBuilder.Entity("PeliculasAPI.Models.Review", b =>
@@ -530,7 +530,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("PeliculasAPI.Models.SalaDeCine", b =>
@@ -551,7 +551,7 @@ namespace PeliculasAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SalasDeCine");
+                    b.ToTable("SalasDeCine", (string)null);
 
                     b.HasData(
                         new
